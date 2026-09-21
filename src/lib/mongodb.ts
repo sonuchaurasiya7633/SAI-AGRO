@@ -1,6 +1,18 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://sonukumar763303_db_user:j02r6Emyyb7neir5@cluster0.yr1t6mo.mongodb.net/greencitysez';
+function getSanitizedMongoUri(rawUri?: string): string {
+  const defaultUri = 'mongodb+srv://sonukumar763303_db_user:j02r6Emyyb7neir5@cluster0.yr1t6mo.mongodb.net/sai_agro?retryWrites=true&w=majority';
+  if (!rawUri) return defaultUri;
+  
+  let clean = rawUri.trim();
+  // Automatically fix spaces in database name (e.g. /SAI AGRO -> /sai_agro)
+  if (clean.includes('/SAI AGRO') || clean.includes('/SAI%20AGRO')) {
+    clean = clean.replace(/\/SAI(%20|\s+)AGRO/gi, '/sai_agro');
+  }
+  return clean;
+}
+
+const MONGODB_URI = getSanitizedMongoUri(process.env.MONGODB_URI);
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
@@ -37,7 +49,8 @@ async function connectToDatabase() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
+    const targetUri = getSanitizedMongoUri(process.env.MONGODB_URI);
+    cached.promise = mongoose.connect(targetUri, opts).then((mongooseInstance) => {
       return mongooseInstance;
     });
   }
