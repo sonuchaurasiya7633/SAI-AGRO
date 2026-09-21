@@ -48,7 +48,7 @@ const fallbackCatalog: ProductItem[] = [
     targetCrops: ['Paddy', 'Wheat', 'Sugarcane', 'Cotton', 'Vegetables'],
     benefits: ['Solubilizes fixed soil phosphorus', 'Reduces DAP usage by up to 30%', 'Enhances root proliferation'],
     packagingSizes: ['500ml', '1 Litre', '5 Litre'],
-    images: ['/images/products/product_1.png']
+    images: ['/images/products/sai-bio-phos.jpg']
   },
   {
     _id: '2',
@@ -61,12 +61,12 @@ const fallbackCatalog: ProductItem[] = [
     targetCrops: ['Tomato', 'Chilli', 'Paddy', 'Cotton', 'Pomegranate', 'Mango'],
     benefits: ['Stops flower & fruit dropping', 'Increases fruit size and lustre', 'Boosts drought and temperature tolerance'],
     packagingSizes: ['250ml', '500ml', '1 Litre'],
-    images: ['/images/products/product_2.png']
+    images: ['/images/products/sai-grow-max.jpg']
   },
   {
     _id: '3',
     name: 'Sai Zinc-Chelate 12% (EDTA Chelated Zinc)',
-    slug: 'sai-zinc-chelate',
+    slug: 'sai-zinc-chelate-12',
     category: 'Chelated Micronutrients',
     tagline: '100% water-soluble EDTA Zinc for instant stomatal assimilation',
     description: 'Fast acting chelated zinc formulation preventing and curing Khaira disease.',
@@ -74,7 +74,7 @@ const fallbackCatalog: ProductItem[] = [
     targetCrops: ['Paddy', 'Wheat', 'Maize', 'Sugarcane', 'Vegetables'],
     benefits: ['Rapid cure for Zinc chlorosis', 'Stimulates chlorophyll synthesis', 'Enhances grain size & protein synthesis'],
     packagingSizes: ['100g', '250g', '500g', '1 Kg'],
-    images: ['/images/products/product_3.png']
+    images: ['/images/products/sai-zinc-chelate.jpg']
   },
   {
     _id: '4',
@@ -87,7 +87,7 @@ const fallbackCatalog: ProductItem[] = [
     targetCrops: ['All Crops', 'Sugarcane', 'Paddy', 'Potato', 'Vegetables'],
     benefits: ['Increases soil Cation Exchange Capacity (CEC)', 'Expands feeder root biomass up to 3x', 'Retains soil moisture in drought conditions'],
     packagingSizes: ['500g', '1 Kg', '5 Kg', '25 Kg'],
-    images: ['/images/products/product_4.png']
+    images: ['/images/products/sai-humic-king.jpg']
   },
   {
     _id: '5',
@@ -100,7 +100,7 @@ const fallbackCatalog: ProductItem[] = [
     targetCrops: ['Chilli', 'Tomato', 'Paddy', 'Cotton', 'Sugarcane', 'Pulses'],
     benefits: ['Eco-friendly biological protection', 'Colonizes root zone against soil pathogens', 'Produces enzymes degrading fungal cell walls'],
     packagingSizes: ['500g', '1 Kg'],
-    images: ['/images/products/product_5.png']
+    images: ['/images/products/sai-bio-shield.jpg']
   },
   {
     _id: '6',
@@ -108,12 +108,12 @@ const fallbackCatalog: ProductItem[] = [
     slug: 'sai-myco-gold',
     category: 'Specialty Bio-Granules',
     tagline: 'Endo-mycorrhizal coated bio-granules for enhanced nutrient uptake',
-    description: 'Vesicular Arbuscular Mycorrhiza granules for explosive root volume and phosphorus delivery.',
+    description: 'Live mycorrhizal bio-granules for 100x nutrient and moisture absorption.',
     composition: 'Vesicular Arbuscular Mycorrhiza (100 IP/gm)',
     targetCrops: ['Wheat', 'Sugarcane', 'Cotton', 'Maize', 'Soybean'],
     benefits: ['Extends root absorption surface area 100x', 'Enhances drought & salinity tolerance', 'Improves uptake of Phosphorus & Zinc'],
     packagingSizes: ['4 Kg', '8 Kg', '25 Kg'],
-    images: ['/images/products/product_6.png']
+    images: ['/images/products/sai-myco-gold.jpg']
   }
 ];
 
@@ -331,19 +331,17 @@ function ProductCatalogContent() {
                 <div className={`relative aspect-[4/3] overflow-hidden flex items-center justify-center p-6 ${
                   isLight ? 'bg-emerald-50/60' : 'bg-[#040e07]'
                 }`}>
-                  {prod.images && prod.images[0] ? (
-                    <img
-                      src={prod.images[0]}
-                      alt={prod.name}
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                      isLight ? 'bg-emerald-100 text-emerald-800' : 'bg-emerald-950 text-lime-400'
-                    }`}>
-                      <Layers className="w-8 h-8" />
-                    </div>
-                  )}
+                  <img
+                    src={prod.images && prod.images[0] ? prod.images[0] : '/images/products/sai-grow-max.jpg'}
+                    alt={prod.name}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes('sai-grow-max.jpg')) {
+                        target.src = '/images/products/sai-grow-max.jpg';
+                      }
+                    }}
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                  />
 
                   <div className="absolute top-4 left-4">
                     <span className={`px-3 py-1 rounded-full text-[11px] font-black shadow-md ${

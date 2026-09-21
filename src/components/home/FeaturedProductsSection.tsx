@@ -32,62 +32,68 @@ const fallbackProducts: ProductItem[] = [
   {
     _id: '1',
     name: 'Sai Bio-Phos (Phosphorus Bio-Fertilizer)',
+    slug: 'sai-bio-phos',
     category: 'Bio-Fertilizers',
     tagline: 'High-potency PSB liquid formulation for rapid phosphorus uptake',
     composition: 'Phosphorus Solubilizing Bacteria (PSB) 1x10^9 CFU/ml',
     benefits: ['Solubilizes fixed soil phosphorus', 'Reduces DAP usage by up to 30%', 'Enhances early root formation'],
     packagingSizes: ['500ml', '1 Litre', '5 Litre'],
-    images: ['/images/products/product_1.png']
+    images: ['/images/products/sai-bio-phos.jpg']
   },
   {
     _id: '2',
     name: 'Sai Grow-Max (Bio-Stimulant & PGR)',
+    slug: 'sai-grow-max',
     category: 'Plant Growth Promoters',
     tagline: 'Seaweed extract + L-Amino acids for massive flowering and fruit set',
     composition: 'Ascophyllum Nodosum (20%) + Free Amino Acids (10%)',
     benefits: ['Prevents flower and fruit shedding', 'Enhances photosynthetic efficiency', 'Improves color, size & shelf life'],
     packagingSizes: ['250ml', '500ml', '1 Litre'],
-    images: ['/images/products/product_2.png']
+    images: ['/images/products/sai-grow-max.jpg']
   },
   {
     _id: '3',
     name: 'Sai Zinc-Chelate 12% (EDTA Chelated Zinc)',
+    slug: 'sai-zinc-chelate-12',
     category: 'Micronutrients',
     tagline: '100% water-soluble EDTA Zinc for instant leaf assimilation',
     composition: 'Chelated Zinc (Zn-EDTA) 12.0% Min',
     benefits: ['Fast cure for Khaira disease', 'Stimulates chlorophyll synthesis', 'Enhances grain size & protein synthesis'],
     packagingSizes: ['100g', '250g', '500g', '1 Kg'],
-    images: ['/images/products/product_3.png']
+    images: ['/images/products/sai-zinc-chelate.jpg']
   },
   {
     _id: '4',
     name: 'Sai Humic-King (98% Potassium Humate)',
+    slug: 'sai-humic-king',
     category: 'Soil Conditioners',
     tagline: 'Shiny humic flakes for white root multiplication and soil aeration',
     composition: 'Potassium Humate 98% (Humic Acid 70% + Fulvic Acid 15%)',
     benefits: ['Increases soil Cation Exchange Capacity (CEC)', 'Expands feeder root biomass up to 3x', 'Retains soil moisture in drought conditions'],
     packagingSizes: ['500g', '1 Kg', '5 Kg', '25 Kg'],
-    images: ['/images/products/product_4.png']
+    images: ['/images/products/sai-humic-king.jpg']
   },
   {
     _id: '5',
     name: 'Sai Bio-Shield (Trichoderma Viride)',
+    slug: 'sai-bio-shield',
     category: 'Bio-Fungicides',
     tagline: 'Biological defense against damping off, root rot & Fusarium wilt',
     composition: 'Trichoderma viride 1.5% W.P. (2x10^6 CFU/g)',
     benefits: ['Eco-friendly biological protection', 'Colonizes root zone against soil pathogens', 'Produces enzymes degrading fungal cell walls'],
     packagingSizes: ['500g', '1 Kg'],
-    images: ['/images/products/product_5.png']
+    images: ['/images/products/sai-bio-shield.jpg']
   },
   {
     _id: '6',
     name: 'Sai Myco-Gold (VAM Bio-Granules)',
+    slug: 'sai-myco-gold',
     category: 'Specialty Bio-Granules',
     tagline: 'Endo-mycorrhizal coated bio-granules for enhanced nutrient uptake',
     composition: 'Vesicular Arbuscular Mycorrhiza (100 IP/gm)',
     benefits: ['Extends root absorption surface area 100x', 'Enhances drought & salinity tolerance', 'Improves uptake of Phosphorus & Zinc'],
     packagingSizes: ['4 Kg', '8 Kg', '25 Kg'],
-    images: ['/images/products/product_6.png']
+    images: ['/images/products/sai-myco-gold.jpg']
   }
 ];
 
@@ -176,19 +182,17 @@ export default function FeaturedProductsSection() {
               <div className={`relative aspect-[4/3] overflow-hidden flex items-center justify-center p-6 ${
                 isLight ? 'bg-emerald-50/60' : 'bg-[#040e07]'
               }`}>
-                {prod.images && prod.images[0] ? (
-                  <img
-                    src={prod.images[0]}
-                    alt={prod.name}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                    isLight ? 'bg-emerald-100 text-emerald-800' : 'bg-emerald-950 text-lime-400'
-                  }`}>
-                    <Layers className="w-8 h-8" />
-                  </div>
-                )}
+                <img
+                  src={prod.images && prod.images[0] ? prod.images[0] : '/images/products/sai-grow-max.jpg'}
+                  alt={prod.name}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.src.includes('sai-grow-max.jpg')) {
+                      target.src = '/images/products/sai-grow-max.jpg';
+                    }
+                  }}
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                />
 
                 <div className="absolute top-4 left-4">
                   <span className={`px-3 py-1 rounded-full text-[11px] font-black shadow-md ${

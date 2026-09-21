@@ -74,9 +74,9 @@ const productDatabase: Record<string, ProductDetail> = {
     },
     packagingSizes: ['100 ml', '250 ml', '500 ml', '1 Litre', '5 Litres'],
     images: [
-      '/images/products/WhatsApp Image 2026-09-21 at 20.50.38 (1).jpeg',
-      '/images/products/product_2.png',
-      '/images/products/WhatsApp Image 2026-09-21 at 21.00.20 (1).jpeg'
+      '/images/products/sai-grow-max.jpg',
+      '/images/products/product-2.jpg',
+      '/images/products/sai-agro-banner.jpg'
     ]
   },
   'sai-bio-phos': {
@@ -103,8 +103,8 @@ const productDatabase: Record<string, ProductDetail> = {
     },
     packagingSizes: ['500 ml', '1 Litre', '5 Litres', '20 Litres Drum'],
     images: [
-      '/images/products/WhatsApp Image 2026-09-21 at 20.50.37.jpeg',
-      '/images/products/product_1.png'
+      '/images/products/sai-bio-phos.jpg',
+      '/images/products/product-1.jpg'
     ]
   },
   'sai-zinc-chelate': {
@@ -131,8 +131,36 @@ const productDatabase: Record<string, ProductDetail> = {
     },
     packagingSizes: ['100 g', '250 g', '500 g', '1 Kg', '25 Kg Bag'],
     images: [
-      '/images/products/WhatsApp Image 2026-09-21 at 20.50.38 (2).jpeg',
-      '/images/products/product_3.png'
+      '/images/products/sai-zinc-chelate.jpg',
+      '/images/products/product-3.jpg'
+    ]
+  },
+  'sai-zinc-chelate-12': {
+    _id: 'sai-zinc-chelate-12',
+    slug: 'sai-zinc-chelate-12',
+    name: 'Sai Zinc-Chelate 12% (EDTA Chelated Micronutrient)',
+    category: 'Chelated Micronutrients',
+    subCategory: 'Chelated Micronutrient',
+    tagline: '100% Water Soluble EDTA Chelated Zinc for Rapid Stomatal Uptake',
+    description: 'Sai Zinc-Chelate contains 12% Zinc in full EDTA chelation, preventing rapid precipitation in alkaline calcareous soils. Essential for auxin hormone production, internodal stem elongation, and curing Khaira disease in paddy.',
+    composition: 'Chelated Zinc (Zn-EDTA) 12.0% min (w/w)',
+    targetCrops: ['Paddy', 'Wheat', 'Maize', 'Sugarcane', 'Citrus', 'Tomato', 'Chilli', 'Cotton'],
+    benefits: [
+      'Immediate stomatal absorption into leaf tissue within 2-3 hours of spray',
+      'Rapidly prevents and cures Zinc chlorosis (yellowing between leaf veins)',
+      'Boosts protein synthesis, enzyme activation, and panicle length',
+      'Fully compatible with non-alkaline bio-fungicides and micronutrient mixtures',
+    ],
+    dosageAndApplication: {
+      foliarSpray: '1.0 to 1.5 grams per litre of water (150-200 grams per acre in 150L water).',
+      dripIrrigation: '500 grams to 1 kg per acre.',
+      soilApplication: 'Mix 500g per acre with organic compost during land preparation.',
+      seedTreatment: 'Not required.',
+    },
+    packagingSizes: ['100 g', '250 g', '500 g', '1 Kg', '25 Kg Bag'],
+    images: [
+      '/images/products/sai-zinc-chelate.jpg',
+      '/images/products/product-3.jpg'
     ]
   },
   'sai-humic-king': {
@@ -159,8 +187,8 @@ const productDatabase: Record<string, ProductDetail> = {
     },
     packagingSizes: ['500 g', '1 Kg', '5 Kg Bucket', '25 Kg Drum'],
     images: [
-      '/images/products/WhatsApp Image 2026-09-21 at 20.50.39.jpeg',
-      '/images/products/product_4.png'
+      '/images/products/sai-humic-king.jpg',
+      '/images/products/product-5.jpg'
     ]
   },
   'sai-bio-shield': {
@@ -187,8 +215,8 @@ const productDatabase: Record<string, ProductDetail> = {
     },
     packagingSizes: ['500 g', '1 Kg', '5 Kg Bucket', '25 Kg Drum'],
     images: [
-      '/images/products/WhatsApp Image 2026-09-21 at 20.50.38.jpeg',
-      '/images/products/product_5.png'
+      '/images/products/sai-bio-shield.jpg',
+      '/images/products/product-4.jpg'
     ]
   },
   'sai-myco-gold': {
@@ -215,8 +243,8 @@ const productDatabase: Record<string, ProductDetail> = {
     },
     packagingSizes: ['4 Kg Bag', '8 Kg Bucket', '25 Kg Drum'],
     images: [
-      '/images/products/product_6.png',
-      '/images/products/WhatsApp Image 2026-09-21 at 20.50.37.jpeg'
+      '/images/products/sai-myco-gold.jpg',
+      '/images/products/product-6.jpg'
     ]
   }
 };
@@ -335,17 +363,17 @@ export default function ProductDetailPage() {
             <div className={`relative aspect-square rounded-3xl border overflow-hidden p-6 sm:p-8 flex items-center justify-center shadow-2xl transition ${
               isLight ? 'bg-white border-emerald-200' : 'bg-[#06150b] border-emerald-700/60'
             }`}>
-              {selectedImage ? (
-                <img
-                  src={selectedImage}
-                  alt={product.name}
-                  className="w-full h-full object-contain filter drop-shadow-2xl hover:scale-105 transition-transform duration-500"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-emerald-950 text-lime-400 flex items-center justify-center">
-                  <Layers className="w-10 h-10" />
-                </div>
-              )}
+              <img
+                src={selectedImage || '/images/products/sai-grow-max.jpg'}
+                alt={product.name}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.src.includes('sai-grow-max.jpg')) {
+                    target.src = '/images/products/sai-grow-max.jpg';
+                  }
+                }}
+                className="w-full h-full object-contain filter drop-shadow-2xl hover:scale-105 transition-transform duration-500"
+              />
 
               <div className="absolute top-4 left-4">
                 <span className={`px-3.5 py-1.5 rounded-full text-xs font-black shadow-lg ${
@@ -369,7 +397,14 @@ export default function ProductDetailPage() {
                         : isLight ? 'bg-white border-slate-200 opacity-70 hover:opacity-100' : 'bg-[#040e07] border-emerald-950 opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="thumb" className="w-full h-full object-contain" />
+                    <img 
+                      src={img} 
+                      alt="thumb" 
+                      onError={(e) => {
+                        e.currentTarget.src = '/images/products/sai-grow-max.jpg';
+                      }}
+                      className="w-full h-full object-contain" 
+                    />
                   </button>
                 ))}
               </div>
