@@ -164,11 +164,11 @@ export default function Navbar() {
               ? 'bg-white/95 py-3 border-emerald-100 shadow-sm'
               : 'bg-[#0b1b11]/95 py-3 border-emerald-900/50 shadow-md'
         }`}>
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+          <div className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
             
             {/* Official Brand Logo & Name */}
-            <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group flex-shrink-0">
-              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden bg-white p-0.5 border-2 border-emerald-500/80 shadow-md group-hover:scale-105 group-hover:border-lime-400 transition-all duration-300">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink min-w-0">
+              <div className="relative w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full overflow-hidden bg-white p-0.5 border-2 border-emerald-500/80 shadow-md group-hover:scale-105 group-hover:border-lime-400 transition-all duration-300 flex-shrink-0">
                 <Image 
                   src="/images/logo.png" 
                   alt="SAI AGRO INDUSTRIES Logo" 
@@ -177,13 +177,13 @@ export default function Navbar() {
                   priority
                 />
               </div>
-              <div className="flex flex-col">
-                <span className={`font-black text-base sm:text-lg tracking-tight leading-none flex items-center gap-1 ${
+              <div className="flex flex-col min-w-0">
+                <span className={`font-black text-xs xs:text-sm sm:text-base lg:text-lg tracking-tight leading-none truncate flex items-center gap-1 ${
                   isLight ? 'text-slate-900' : 'text-white'
                 }`}>
-                  SAI AGRO <span className="text-lime-600 dark:text-lime-400 font-black text-xs sm:text-sm">INDUSTRIES</span>
+                  SAI AGRO <span className="text-lime-600 dark:text-lime-400 font-black text-[10px] xs:text-xs sm:text-sm">INDUSTRIES</span>
                 </span>
-                <span className={`text-[9px] sm:text-[10px] tracking-wider font-extrabold uppercase mt-0.5 ${
+                <span className={`text-[8px] sm:text-[10px] tracking-wider font-extrabold uppercase mt-0.5 truncate ${
                   isLight ? 'text-emerald-700' : 'text-emerald-400'
                 }`}>
                   {isHindi ? 'बायोटेक एवं फसल पोषण' : 'Bio-Tech & Crop Nutrition'}
@@ -411,47 +411,48 @@ export default function Navbar() {
             </div>
 
             {/* Mobile / Tablet Compact Header Controls (Shown ONLY on screens < 1200px) */}
-            <div className="flex items-center gap-2 xl:hidden">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 xl:hidden">
               {/* Language Switcher Mobile */}
               <button
                 onClick={toggleLanguage}
                 aria-label="Toggle language"
-                className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-black flex items-center gap-1 shadow-sm ${
-                  isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-emerald-950 border-emerald-800 text-lime-300'
+                className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl border text-[11px] font-black flex items-center gap-1 shadow-sm transition ${
+                  isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-900 hover:bg-emerald-100' : 'bg-emerald-950 border-emerald-800 text-lime-300 hover:bg-emerald-900'
                 }`}
+                title="भाषा बदलें / Change Language"
               >
                 <Globe className="w-3 h-3 text-emerald-400" />
                 <span>{isHindi ? 'EN' : 'हिन्दी'}</span>
               </button>
 
-              {/* Theme Toggle Mobile */}
+              {/* Theme Toggle Mobile (Visible on tablets, in drawer for small phones) */}
               <button
                 onClick={toggleTheme}
                 aria-label="Toggle theme"
-                className={`p-1.5 rounded-xl border shadow-sm ${
+                className={`p-1.5 rounded-xl border shadow-sm hidden sm:flex items-center justify-center transition ${
                   isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-emerald-950 border-emerald-800 text-lime-300'
                 }`}
               >
                 {isLight ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5 text-amber-300" />}
               </button>
 
-              {/* Quote CTA Mobile */}
+              {/* Quote CTA Mobile (Visible on tablets, in drawer for small phones) */}
               <button
                 onClick={() => setIsQuoteModalOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-lime-500 text-slate-950 font-black text-xs shadow-md"
+                className="hidden sm:inline-flex px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-lime-500 text-slate-950 font-black text-xs shadow-md"
               >
                 {isHindi ? 'कोटेशन' : 'Quote'}
               </button>
 
-              {/* Hamburger Menu Button (ONLY in Mobile) */}
+              {/* Hamburger Menu Button (Fixed size, flex-shrink-0, perfectly responsive) */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`p-2 rounded-xl border transition-all shadow-md ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all shadow-md flex-shrink-0 ${
                   isOpen
-                    ? 'bg-lime-500 border-lime-400 text-slate-950'
+                    ? 'bg-lime-500 border-lime-400 text-slate-950 ring-2 ring-lime-400/50'
                     : isLight 
-                      ? 'bg-emerald-50 border-emerald-200 text-slate-800' 
-                      : 'bg-emerald-950 border-emerald-800 text-slate-200'
+                      ? 'bg-emerald-50 border-emerald-200 text-slate-800 hover:bg-emerald-100' 
+                      : 'bg-emerald-950 border-emerald-800 text-slate-200 hover:bg-emerald-900'
                 }`}
                 aria-label="Toggle mobile menu"
               >
@@ -472,8 +473,8 @@ export default function Navbar() {
             onClick={() => setIsOpen(false)}
           />
 
-          {/* Solid Drawer Panel (100% Solid Non-Transparent Background) */}
-          <aside className={`fixed inset-y-0 right-0 max-w-sm w-full shadow-2xl z-50 flex flex-col justify-between overflow-hidden transition-transform duration-300 ${
+          {/* Solid Drawer Panel (100% Solid Non-Transparent Background, Responsive Width) */}
+          <aside className={`fixed inset-y-0 right-0 w-[85vw] max-w-sm shadow-2xl z-50 flex flex-col justify-between overflow-hidden transition-transform duration-300 ${
             isLight ? 'bg-white text-slate-900 border-l border-emerald-200' : 'bg-[#06150b] text-white border-l border-emerald-800/80'
           }`}>
             
