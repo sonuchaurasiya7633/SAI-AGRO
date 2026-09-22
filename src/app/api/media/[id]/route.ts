@@ -3,6 +3,8 @@ import connectToDatabase from '@/lib/mongodb';
 import Media from '@/models/Media';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await authenticateRequest(req);

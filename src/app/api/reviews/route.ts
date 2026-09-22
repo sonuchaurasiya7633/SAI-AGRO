@@ -3,7 +3,9 @@ import connectToDatabase from '@/lib/mongodb';
 import Review from '@/models/Review';
 import { authenticateRequest } from '@/lib/auth';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(req?: NextRequest) {
   try {
     await connectToDatabase();
     const reviews = await Review.find().sort({ createdAt: -1 });

@@ -4,6 +4,8 @@ import Product from '@/models/Product';
 import { authenticateRequest } from '@/lib/auth';
 import mongoose from 'mongoose';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/products/[id] (by ID or Slug)
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Category from '@/models/Category';
 import { authenticateRequest } from '@/lib/auth';
-import mongoose from 'mongoose';
+
+export const dynamic = 'force-dynamic';
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {

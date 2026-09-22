@@ -13,8 +13,9 @@ import {
   Sparkles, 
   Image as ImageIcon,
   Loader2,
-  Eye
+  AlertCircle
 } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 interface ProductItem {
   _id: string;
@@ -39,7 +40,7 @@ interface ProductItem {
   inStock: boolean;
 }
 
-const defaultCategories = [
+const fallbackCategories = [
   'Bio-Fertilizers & Inoculants',
   'Plant Growth Regulators & Promoters',
   'Chelated Micronutrients',
@@ -49,16 +50,21 @@ const defaultCategories = [
 ];
 
 export default function AdminProductsPage() {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   const [products, setProducts] = useState<ProductItem[]>([]);
+  const [categoriesList, setCategoriesList] = useState<string[]>(fallbackCategories);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
     name: '',
-    category: defaultCategories[0],
+    category: fallbackCategories[0],
     subCategory: '',
     tagline: '',
     description: '',
@@ -80,7 +86,21 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  async function fetchCategories() {
+    try {
+      const res = await fetch('/api/categories');
+      const data = await res.json();
+      if (data.success && data.categories && data.categories.length > 0) {
+        const catNames = data.categories.map((c: any) => c.name);
+        setCategoriesList(catNames);
+      }
+    } catch (err) {
+      console.error('Failed to fetch categories:', err);
+    }
+  }
 
   async function fetchProducts() {
     setLoading(true);
@@ -99,9 +119,10 @@ export default function AdminProductsPage() {
 
   const handleOpenAdd = () => {
     setEditingProduct(null);
+    setErrorMsg('');
     setFormData({
       name: '',
-      category: defaultCategories[0],
+      category: categoriesList[0] || fallbackCategories[0],
       subCategory: '',
       tagline: '',
       description: '',
@@ -122,6 +143,7 @@ export default function AdminProductsPage() {
 
   const handleOpenEdit = (prod: ProductItem) => {
     setEditingProduct(prod);
+    setErrorMsg('');
     setFormData({
       name: prod.name,
       category: prod.category,
@@ -164,6 +186,8 @@ export default function AdminProductsPage() {
           ...prev,
           images: [data.url, ...prev.images],
         }));
+      } else {
+        alert(data.error || 'Failed to upload image');
       }
     } catch (err) {
       console.error('Image upload failed:', err);
@@ -175,6 +199,7 @@ export default function AdminProductsPage() {
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setErrorMsg('');
 
     const payload = {
       name: formData.name,
@@ -213,12 +238,16 @@ export default function AdminProductsPage() {
         });
       }
 
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success) {
         setIsModalOpen(false);
         fetchProducts();
+      } else {
+        setErrorMsg(data.error || 'Failed to save product');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving product:', err);
+      setErrorMsg(err.message || 'An error occurred while saving product');
     } finally {
       setSaving(false);
     }
@@ -245,19 +274,31 @@ export default function AdminProductsPage() {
     );
   });
 
+  const inputClass = `w-full px-3.5 py-2.5 rounded-xl border text-xs transition focus:outline-none ${
+    isLight 
+      ? 'bg-white border-slate-300 text-slate-900 focus:border-emerald-600 shadow-sm' 
+      : 'bg-[#040e07] border-emerald-900 text-white focus:border-lime-400'
+  }`;
+
+  const labelClass = `block text-xs font-bold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`;
+
   return (
     <div className="space-y-6">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white">Product Formulations Management</h1>
-          <p className="text-xs text-slate-400">Add, edit, upload images to Cloudinary, and manage live agricultural catalog.</p>
+          <h1 className={`text-2xl sm:text-3xl font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            Product Formulations Management
+          </h1>
+          <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            Add, edit, upload images to Cloudinary, and manage live agricultural catalog.
+          </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-lime-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-lg self-start sm:self-auto hover:scale-105 transition"
+          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-lime-500 hover:from-emerald-500 hover:to-lime-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-lg self-start sm:self-auto hover:scale-105 transition"
         >
           <Plus className="w-4 h-4" /> Add New Product
         </button>
@@ -265,22 +306,28 @@ export default function AdminProductsPage() {
 
       {/* Search Bar */}
       <div className="relative max-w-md">
-        <Search className="w-4 h-4 text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`} />
         <input
           type="text"
           placeholder="Search products by name or active composition..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#07170c] border border-emerald-900 text-white text-xs focus:border-lime-400 focus:outline-none"
+          className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs focus:outline-none ${
+            isLight 
+              ? 'bg-white border-slate-300 text-slate-900 focus:border-emerald-600 shadow-sm' 
+              : 'bg-[#07170c] border-emerald-900 text-white focus:border-lime-400'
+          }`}
         />
       </div>
 
       {/* Products Table */}
-      <div className="glass-panel rounded-3xl border border-emerald-500/20 overflow-hidden">
+      <div className={`rounded-3xl border overflow-hidden ${
+        isLight ? 'bg-white border-emerald-200 shadow-lg' : 'glass-panel border-emerald-500/20'
+      }`}>
         {loading ? (
           <div className="py-20 text-center">
             <div className="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-slate-400 text-xs">Loading products...</p>
+            <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Loading products...</p>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="py-16 text-center text-slate-400 text-xs">
@@ -290,60 +337,84 @@ export default function AdminProductsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-[#040e07] border-b border-emerald-950 text-slate-400">
+                <tr className={`border-b ${isLight ? 'bg-emerald-50/70 border-slate-200 text-slate-700' : 'bg-[#040e07] border-emerald-950 text-slate-400'}`}>
                   <th className="py-3 px-4">Image</th>
                   <th className="py-3 px-4">Product Name</th>
                   <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4">Active Formulation</th>
+                  <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Featured</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-emerald-950/60">
+              <tbody className={`divide-y ${isLight ? 'divide-slate-200' : 'divide-emerald-950/60'}`}>
                 {filteredProducts.map((prod) => (
-                  <tr key={prod._id} className="hover:bg-emerald-950/30 transition">
+                  <tr key={prod._id} className={isLight ? 'hover:bg-slate-50 transition' : 'hover:bg-emerald-950/30 transition'}>
                     <td className="py-3 px-4">
-                      <div className="w-12 h-12 rounded-xl bg-[#040e07] border border-emerald-900 p-1 flex items-center justify-center overflow-hidden">
+                      <div className={`w-12 h-12 rounded-xl border p-1 flex items-center justify-center overflow-hidden ${
+                        isLight ? 'bg-slate-100 border-slate-200' : 'bg-[#040e07] border-emerald-900'
+                      }`}>
                         {prod.images?.[0] ? (
                           <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-contain" />
                         ) : (
-                          <ImageIcon className="w-5 h-5 text-slate-500" />
+                          <ImageIcon className="w-5 h-5 text-slate-400" />
                         )}
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <div className="font-bold text-white text-sm">{prod.name}</div>
-                      <div className="text-[11px] text-emerald-400 truncate max-w-[200px]">{prod.tagline}</div>
+                      <div className={`font-bold text-sm ${isLight ? 'text-slate-900' : 'text-white'}`}>{prod.name}</div>
+                      <div className="text-[11px] text-emerald-600 dark:text-emerald-400 truncate max-w-[200px]">{prod.tagline}</div>
                     </td>
-                    <td className="py-3 px-4 text-slate-300">
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-[11px] font-medium text-lime-300">
+                    <td className="py-3 px-4">
+                      <span className={`px-2.5 py-0.5 rounded-full border text-[11px] font-bold ${
+                        isLight 
+                          ? 'bg-emerald-100 border-emerald-200 text-emerald-800' 
+                          : 'bg-emerald-950 border-emerald-800 text-lime-300'
+                      }`}>
                         {prod.category}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-slate-300 truncate max-w-[200px]">
+                    <td className={`py-3 px-4 truncate max-w-[200px] ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>
                       {prod.composition || 'N/A'}
                     </td>
                     <td className="py-3 px-4">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        prod.inStock !== false 
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-lime-300' 
+                          : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'
+                      }`}>
+                        {prod.inStock !== false ? 'In Stock' : 'Out of Stock'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
                       {prod.isFeatured ? (
-                        <span className="text-lime-400 font-bold flex items-center gap-1">
+                        <span className="text-emerald-700 dark:text-lime-400 font-bold flex items-center gap-1">
                           <Sparkles className="w-3.5 h-3.5" /> Yes
                         </span>
                       ) : (
-                        <span className="text-slate-500">No</span>
+                        <span className="text-slate-400">No</span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleOpenEdit(prod)}
-                          className="p-1.5 rounded-lg bg-emerald-950 text-lime-400 hover:bg-emerald-900 transition"
+                          className={`p-1.5 rounded-lg border transition ${
+                            isLight 
+                              ? 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100' 
+                              : 'bg-emerald-950 border-emerald-800 text-lime-400 hover:bg-emerald-900'
+                          }`}
                           title="Edit"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteProduct(prod._id)}
-                          className="p-1.5 rounded-lg bg-red-950 text-red-400 hover:bg-red-900 transition"
+                          className={`p-1.5 rounded-lg border transition ${
+                            isLight 
+                              ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+                              : 'bg-red-950 border-red-900 text-red-400 hover:bg-red-900'
+                          }`}
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -361,41 +432,54 @@ export default function AdminProductsPage() {
       {/* Add / Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-2xl my-8 rounded-3xl glass-panel p-6 sm:p-8 border border-emerald-500/40 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className={`relative w-full max-w-2xl my-8 rounded-3xl p-6 sm:p-8 border shadow-2xl max-h-[90vh] overflow-y-auto ${
+            isLight ? 'bg-white border-emerald-200' : 'glass-panel border-emerald-500/40'
+          }`}>
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 p-2 rounded-full bg-emerald-950 text-slate-400 hover:text-white"
+              className={`absolute top-5 right-5 p-2 rounded-full ${
+                isLight ? 'bg-slate-100 text-slate-600 hover:text-slate-900' : 'bg-emerald-950 text-slate-400 hover:text-white'
+              }`}
             >
               <X className="w-5 h-5" />
             </button>
 
             <form onSubmit={handleSaveProduct} className="space-y-5">
               <div>
-                <h3 className="text-xl font-bold text-white">
+                <h3 className={`text-xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
                   {editingProduct ? 'Edit Agricultural Product' : 'Add New Agricultural Formulation'}
                 </h3>
-                <p className="text-xs text-slate-400">Specify details, composition, dosage, and images.</p>
+                <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                  Specify details, composition, dosage, packaging, and Cloudinary images.
+                </p>
               </div>
+
+              {errorMsg && (
+                <div className="p-3 rounded-xl bg-red-950/80 border border-red-800 text-red-300 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Product Name *</label>
+                  <label className={labelClass}>Product Name *</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs focus:border-lime-400 focus:outline-none"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Category *</label>
+                  <label className={labelClass}>Category *</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs focus:border-lime-400 focus:outline-none"
+                    className={inputClass}
                   >
-                    {defaultCategories.map((c) => (
+                    {categoriesList.map((c) => (
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
@@ -404,82 +488,86 @@ export default function AdminProductsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Tagline / Key Highlight</label>
+                  <label className={labelClass}>Tagline / Key Highlight</label>
                   <input
                     type="text"
                     value={formData.tagline}
                     onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
                     placeholder="e.g. 100% Water Soluble EDTA Chelated Zinc"
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs focus:border-lime-400 focus:outline-none"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Active Formulation / CFU</label>
+                  <label className={labelClass}>Active Formulation / CFU</label>
                   <input
                     type="text"
                     value={formData.composition}
                     onChange={(e) => setFormData({ ...formData, composition: e.target.value })}
                     placeholder="e.g. Bacillus megaterium (1 x 10^8 cells/ml)"
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs focus:border-lime-400 focus:outline-none"
+                    className={inputClass}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Full Description *</label>
+                <label className={labelClass}>Full Description *</label>
                 <textarea
                   rows={3}
                   required
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs focus:border-lime-400 focus:outline-none resize-none"
+                  className={`${inputClass} resize-none`}
                 />
               </div>
 
               {/* Dosage Fields */}
-              <div className="p-4 rounded-2xl bg-[#040e07] border border-emerald-900 space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-lime-400">
+              <div className={`p-4 rounded-2xl border space-y-3 ${
+                isLight ? 'bg-emerald-50/50 border-emerald-200' : 'bg-[#040e07] border-emerald-900'
+              }`}>
+                <h4 className={`text-xs font-bold uppercase tracking-wider ${
+                  isLight ? 'text-emerald-800' : 'text-lime-400'
+                }`}>
                   Dosage & Application Schedules
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">Foliar Spray</label>
+                    <label className={labelClass}>Foliar Spray</label>
                     <input
                       type="text"
                       value={formData.foliarSpray}
                       onChange={(e) => setFormData({ ...formData, foliarSpray: e.target.value })}
                       placeholder="e.g. 2 ml per litre water"
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#07170c] border border-emerald-900 text-white text-xs"
+                      className={inputClass}
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">Drip Fertigation</label>
+                    <label className={labelClass}>Drip Fertigation</label>
                     <input
                       type="text"
                       value={formData.dripIrrigation}
                       onChange={(e) => setFormData({ ...formData, dripIrrigation: e.target.value })}
                       placeholder="e.g. 1L to 2L per acre"
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#07170c] border border-emerald-900 text-white text-xs"
+                      className={inputClass}
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">Soil / Basal Application</label>
+                    <label className={labelClass}>Soil / Basal Application</label>
                     <input
                       type="text"
                       value={formData.soilApplication}
                       onChange={(e) => setFormData({ ...formData, soilApplication: e.target.value })}
                       placeholder="e.g. 2.5 kg mixed with 100 kg compost"
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#07170c] border border-emerald-900 text-white text-xs"
+                      className={inputClass}
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">Seed Treatment</label>
+                    <label className={labelClass}>Seed Treatment</label>
                     <input
                       type="text"
                       value={formData.seedTreatment}
                       onChange={(e) => setFormData({ ...formData, seedTreatment: e.target.value })}
                       placeholder="e.g. 10 ml per kg seed"
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#07170c] border border-emerald-900 text-white text-xs"
+                      className={inputClass}
                     />
                   </div>
                 </div>
@@ -488,41 +576,45 @@ export default function AdminProductsPage() {
               {/* Target Crops & Packaging */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Target Crops (Comma-separated)</label>
+                  <label className={labelClass}>Target Crops (Comma-separated)</label>
                   <input
                     type="text"
                     value={formData.targetCropsStr}
                     onChange={(e) => setFormData({ ...formData, targetCropsStr: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Packaging Sizes (Comma-separated)</label>
+                  <label className={labelClass}>Packaging Sizes (Comma-separated)</label>
                   <input
                     type="text"
                     value={formData.packagingSizesStr}
                     onChange={(e) => setFormData({ ...formData, packagingSizesStr: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs"
+                    className={inputClass}
                   />
                 </div>
               </div>
 
               {/* Benefits Multiline */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Key Agronomic Benefits (One per line)</label>
+                <label className={labelClass}>Key Agronomic Benefits (One per line)</label>
                 <textarea
                   rows={2}
                   value={formData.benefitsStr}
                   onChange={(e) => setFormData({ ...formData, benefitsStr: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs resize-none"
+                  className={`${inputClass} resize-none`}
                 />
               </div>
 
               {/* Image Upload to Cloudinary */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-300">Upload Product Image (Cloudinary Direct)</label>
+                <label className={labelClass}>Upload Product Image (Cloudinary Direct)</label>
                 <div className="flex items-center gap-3">
-                  <label className="px-4 py-2 rounded-xl bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-lime-300 text-xs font-bold cursor-pointer flex items-center gap-2">
+                  <label className={`px-4 py-2 rounded-xl border text-xs font-bold cursor-pointer flex items-center gap-2 ${
+                    isLight 
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100' 
+                      : 'bg-emerald-950 hover:bg-emerald-900 border-emerald-700 text-lime-300'
+                  }`}>
                     <Upload className="w-4 h-4" />
                     <span>{uploadingImage ? 'Uploading to Cloudinary...' : 'Select File'}</span>
                     <input
@@ -533,13 +625,17 @@ export default function AdminProductsPage() {
                       className="hidden"
                     />
                   </label>
-                  <span className="text-[11px] text-slate-400">{formData.images.length} images uploaded</span>
+                  <span className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                    {formData.images.length} images uploaded
+                  </span>
                 </div>
 
                 {formData.images.length > 0 && (
                   <div className="flex gap-2 flex-wrap pt-2">
                     {formData.images.map((img, i) => (
-                      <div key={i} className="relative w-16 h-16 rounded-xl border border-emerald-800 bg-[#040e07] p-1">
+                      <div key={i} className={`relative w-16 h-16 rounded-xl border p-1 ${
+                        isLight ? 'bg-slate-100 border-slate-300' : 'bg-[#040e07] border-emerald-800'
+                      }`}>
                         <img src={img} alt="img" className="w-full h-full object-contain" />
                         <button
                           type="button"
@@ -556,7 +652,7 @@ export default function AdminProductsPage() {
 
               {/* Flags */}
               <div className="flex items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-200">
+                <label className={`flex items-center gap-2 cursor-pointer text-xs font-bold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
                   <input
                     type="checkbox"
                     checked={formData.isFeatured}
@@ -565,12 +661,22 @@ export default function AdminProductsPage() {
                   />
                   <span>Show as Featured on Home Page</span>
                 </label>
+
+                <label className={`flex items-center gap-2 cursor-pointer text-xs font-bold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
+                  <input
+                    type="checkbox"
+                    checked={formData.inStock}
+                    onChange={(e) => setFormData({ ...formData, inStock: e.target.checked })}
+                    className="w-4 h-4 rounded accent-lime-400"
+                  />
+                  <span>In Stock</span>
+                </label>
               </div>
 
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-lime-400 hover:from-emerald-400 text-slate-950 font-bold text-sm shadow-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-lime-500 hover:from-emerald-500 hover:to-lime-400 text-slate-950 font-bold text-sm shadow-xl flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                 <span>{editingProduct ? 'Save Changes' : 'Create Product'}</span>

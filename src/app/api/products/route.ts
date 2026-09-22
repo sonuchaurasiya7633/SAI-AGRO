@@ -3,6 +3,8 @@ import connectToDatabase from '@/lib/mongodb';
 import Product from '@/models/Product';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 // Helper to convert title to slug
 function slugify(text: string) {
   return text

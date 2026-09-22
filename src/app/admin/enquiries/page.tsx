@@ -10,9 +10,10 @@ import {
   Trash2, 
   CheckCircle2, 
   RefreshCw, 
-  ExternalLink,
-  MessageCircle
+  MessageCircle,
+  AlertCircle 
 } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 interface EnquiryItem {
   _id: string;
@@ -31,6 +32,9 @@ interface EnquiryItem {
 }
 
 export default function AdminEnquiriesPage() {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   const [enquiries, setEnquiries] = useState<EnquiryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -99,27 +103,37 @@ export default function AdminEnquiriesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white">Leads & Quotation Enquiries</h1>
-          <p className="text-xs text-slate-400">Track and respond to incoming farmer quotes, bulk orders, and dealership inquiries.</p>
+          <h1 className={`text-2xl sm:text-3xl font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            Leads & Quotation Enquiries
+          </h1>
+          <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            Track and respond to incoming farmer quotes, bulk orders, and dealership inquiries.
+          </p>
         </div>
 
         <button
           onClick={fetchEnquiries}
-          className="p-2.5 rounded-xl bg-[#07170c] border border-emerald-900 text-slate-300 hover:text-white transition self-start sm:self-auto"
+          className={`p-2.5 rounded-xl border transition self-start sm:self-auto ${
+            isLight ? 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50' : 'bg-[#07170c] border-emerald-900 text-slate-300 hover:text-white'
+          }`}
         >
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
       {/* Filter Row */}
-      <div className="rounded-2xl glass-panel p-4 border border-emerald-500/20 flex flex-wrap items-center gap-4">
+      <div className={`rounded-2xl p-4 border flex flex-wrap items-center gap-4 ${
+        isLight ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-emerald-500/20'
+      }`}>
         <div className="flex-grow min-w-[200px]">
           <input
             type="text"
             placeholder="Search by customer name, phone, state..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs focus:border-lime-400 focus:outline-none"
+            className={`w-full px-3.5 py-2 rounded-xl border text-xs focus:outline-none ${
+              isLight ? 'bg-slate-50 border-slate-300 text-slate-900 focus:border-emerald-600' : 'bg-[#040e07] border-emerald-900 text-white focus:border-lime-400'
+            }`}
           />
         </div>
 
@@ -127,7 +141,9 @@ export default function AdminEnquiriesPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs focus:outline-none"
+            className={`px-3.5 py-2 rounded-xl border text-xs focus:outline-none ${
+              isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-[#040e07] border-emerald-900 text-white'
+            }`}
           >
             <option value="all">Status: All</option>
             <option value="New">New</option>
@@ -142,7 +158,9 @@ export default function AdminEnquiriesPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-3.5 py-2 rounded-xl bg-[#040e07] border border-emerald-900 text-white text-xs focus:outline-none"
+            className={`px-3.5 py-2 rounded-xl border text-xs focus:outline-none ${
+              isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-[#040e07] border-emerald-900 text-white'
+            }`}
           >
             <option value="all">Type: All</option>
             <option value="Product Quote">Product Quote</option>
@@ -155,11 +173,13 @@ export default function AdminEnquiriesPage() {
       </div>
 
       {/* Table */}
-      <div className="glass-panel rounded-3xl border border-emerald-500/20 overflow-hidden">
+      <div className={`rounded-3xl border overflow-hidden ${
+        isLight ? 'bg-white border-emerald-200 shadow-lg' : 'glass-panel border-emerald-500/20'
+      }`}>
         {loading ? (
           <div className="py-20 text-center">
             <div className="w-10 h-10 border-4 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-slate-400 text-xs">Loading enquiries...</p>
+            <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Loading enquiries...</p>
           </div>
         ) : filteredEnquiries.length === 0 ? (
           <div className="py-16 text-center text-slate-400 text-xs">
@@ -169,7 +189,7 @@ export default function AdminEnquiriesPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-[#040e07] border-b border-emerald-950 text-slate-400">
+                <tr className={`border-b ${isLight ? 'bg-emerald-50/70 border-slate-200 text-slate-700' : 'bg-[#040e07] border-emerald-950 text-slate-400'}`}>
                   <th className="py-3 px-4">Customer Info</th>
                   <th className="py-3 px-4">Inquiry Type</th>
                   <th className="py-3 px-4">Product / Quantity</th>
@@ -179,48 +199,52 @@ export default function AdminEnquiriesPage() {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-emerald-950/60">
+              <tbody className={`divide-y ${isLight ? 'divide-slate-200' : 'divide-emerald-950/60'}`}>
                 {filteredEnquiries.map((enq) => {
-                  const whatsappChatUrl = `https://wa.me/${enq.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                  const rawDigits = enq.phone.replace(/\D/g, '');
+                  const waNumber = rawDigits.length === 10 ? `91${rawDigits}` : rawDigits;
+                  const whatsappChatUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(
                     `Hello ${enq.fullName}, thank you for contacting Sai Agro Industries regarding ${enq.productName || 'our agricultural bio-formulations'}.`
                   )}`;
 
                   return (
-                    <tr key={enq._id} className="hover:bg-emerald-950/30 transition">
+                    <tr key={enq._id} className={isLight ? 'hover:bg-slate-50 transition' : 'hover:bg-emerald-950/30 transition'}>
                       <td className="py-3 px-4">
-                        <div className="font-bold text-white text-sm">{enq.fullName}</div>
-                        <div className="text-emerald-400 font-medium flex items-center gap-1 mt-0.5">
+                        <div className={`font-bold text-sm ${isLight ? 'text-slate-900' : 'text-white'}`}>{enq.fullName}</div>
+                        <div className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 mt-0.5">
                           <Phone className="w-3 h-3" />
                           <a href={`tel:${enq.phone}`} className="hover:underline">{enq.phone}</a>
                         </div>
                         {enq.email && (
-                          <div className="text-[11px] text-slate-400 flex items-center gap-1">
+                          <div className={`text-[11px] flex items-center gap-1 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                             <Mail className="w-3 h-3" /> {enq.email}
                           </div>
                         )}
-                        <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-lime-400" /> {enq.district ? `${enq.district}, ` : ''}{enq.state}
+                        <div className={`text-[10px] flex items-center gap-1 mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          <MapPin className="w-3 h-3 text-emerald-600 dark:text-lime-400" /> {enq.district ? `${enq.district}, ` : ''}{enq.state}
                         </div>
                       </td>
 
                       <td className="py-3 px-4">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-950 text-lime-300 border border-emerald-800">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                          isLight ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-emerald-950 text-lime-300 border-emerald-800'
+                        }`}>
                           {enq.inquiryType}
                         </span>
                       </td>
 
                       <td className="py-3 px-4">
-                        <div className="font-semibold text-white">{enq.productName || 'General Inquiry'}</div>
+                        <div className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'}`}>{enq.productName || 'General Inquiry'}</div>
                         {enq.quantity && (
-                          <div className="text-[11px] text-lime-400 font-medium">Qty: {enq.quantity}</div>
+                          <div className="text-[11px] text-emerald-700 dark:text-lime-400 font-medium">Qty: {enq.quantity}</div>
                         )}
                       </td>
 
-                      <td className="py-3 px-4 max-w-xs text-slate-300">
+                      <td className={`py-3 px-4 max-w-xs ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                         <p className="line-clamp-3">{enq.message}</p>
                       </td>
 
-                      <td className="py-3 px-4 text-slate-400 whitespace-nowrap text-[11px]">
+                      <td className={`py-3 px-4 whitespace-nowrap text-[11px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                         {new Date(enq.createdAt).toLocaleDateString()}
                       </td>
 
@@ -230,10 +254,10 @@ export default function AdminEnquiriesPage() {
                           onChange={(e) => handleUpdateStatus(enq._id, e.target.value)}
                           className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border focus:outline-none ${
                             enq.status === 'New'
-                              ? 'bg-lime-400 text-slate-950 border-lime-400'
+                              ? isLight ? 'bg-emerald-700 text-white border-emerald-800' : 'bg-lime-400 text-slate-950 border-lime-400'
                               : enq.status === 'Contacted'
-                              ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                              : 'bg-[#040e07] text-slate-300 border-emerald-900'
+                              ? isLight ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                              : isLight ? 'bg-white text-slate-800 border-slate-300' : 'bg-[#040e07] text-slate-300 border-emerald-900'
                           }`}
                         >
                           <option value="New">New</option>
@@ -258,7 +282,11 @@ export default function AdminEnquiriesPage() {
 
                           <button
                             onClick={() => handleDelete(enq._id)}
-                            className="p-1.5 rounded-lg bg-red-950 text-red-400 hover:bg-red-900 transition"
+                            className={`p-1.5 rounded-lg border transition ${
+                              isLight 
+                                ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+                                : 'bg-red-950 border-red-900 text-red-400 hover:bg-red-900'
+                            }`}
                             title="Delete Lead"
                           >
                             <Trash2 className="w-4 h-4" />

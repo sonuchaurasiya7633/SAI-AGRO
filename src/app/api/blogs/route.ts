@@ -3,6 +3,8 @@ import connectToDatabase from '@/lib/mongodb';
 import Blog from '@/models/Blog';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 function slugify(text: string) {
   return text
     .toString()

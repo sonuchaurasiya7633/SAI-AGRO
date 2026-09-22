@@ -3,6 +3,8 @@ import { authenticateRequest, hashPassword, verifyPassword } from '@/lib/auth';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const session = await authenticateRequest(req);

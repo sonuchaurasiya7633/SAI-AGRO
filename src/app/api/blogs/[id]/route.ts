@@ -4,6 +4,8 @@ import Blog from '@/models/Blog';
 import { authenticateRequest } from '@/lib/auth';
 import mongoose from 'mongoose';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await connectToDatabase();

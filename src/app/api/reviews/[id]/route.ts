@@ -3,6 +3,22 @@ import connectToDatabase from '@/lib/mongodb';
 import Review from '@/models/Review';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    await connectToDatabase();
+    const { id } = params;
+    const review = await Review.findById(id);
+    if (!review) {
+      return NextResponse.json({ error: 'Review not found' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, review });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await authenticateRequest(req);

@@ -8,6 +8,8 @@ import Review from '@/models/Review';
 import Media from '@/models/Media';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const session = await authenticateRequest(req);

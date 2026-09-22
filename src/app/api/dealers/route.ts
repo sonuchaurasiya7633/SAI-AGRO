@@ -3,6 +3,8 @@ import connectToDatabase from '@/lib/mongodb';
 import Dealer from '@/models/Dealer';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/dealers (Admin Protected)
 export async function GET(req: NextRequest) {
   try {

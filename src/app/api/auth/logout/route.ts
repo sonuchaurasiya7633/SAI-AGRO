@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 
-export async function POST() {
+export const dynamic = 'force-dynamic';
+
+function performLogout() {
   const response = NextResponse.json({ success: true, message: 'Logged out successfully' });
   response.cookies.set({
     name: 'admin_token',
@@ -10,4 +12,12 @@ export async function POST() {
     path: '/',
   });
   return response;
+}
+
+export async function POST() {
+  return performLogout();
+}
+
+export async function GET() {
+  return performLogout();
 }

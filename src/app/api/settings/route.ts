@@ -3,7 +3,9 @@ import connectToDatabase from '@/lib/mongodb';
 import Setting from '@/models/Setting';
 import { authenticateRequest } from '@/lib/auth';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(req?: NextRequest) {
   try {
     await connectToDatabase();
     let setting = await Setting.findOne();
@@ -15,9 +17,23 @@ export async function GET() {
         phoneSecondary: '+91 91234 56789',
         whatsappNumber: '919876543210',
         emailPrimary: 'info@saiagroindustries.com',
+        emailSupport: 'support@saiagroindustries.com',
         registeredAddress: 'Bela Industrial Area, Phase II, Agro Complex, India',
         factoryAddress: 'Plot No. 12-16, Eco Biotech Zone, Sai Agro Park',
         gstin: '10AAACS9988F1Z9',
+        stats: {
+          farmersHelped: '50,000+',
+          productsDelivered: '1,50,000+',
+          statesPresence: '18+ States',
+          yieldImprovement: '25-35%',
+        },
+        socialLinks: {
+          facebook: 'https://facebook.com',
+          youtube: 'https://youtube.com',
+          instagram: 'https://instagram.com',
+          linkedin: 'https://linkedin.com',
+          whatsapp: 'https://wa.me/919876543210',
+        },
         heroVideoUrl: 'https://res.cloudinary.com/dqpbo1uho/video/upload/v1790006013/cfxq9ax4finlluesengh.mp4',
         heroVideoUrl2: 'https://res.cloudinary.com/dqpbo1uho/video/upload/v1790006093/okb0skw8akivryv3drin.mp4',
       });
@@ -29,11 +45,11 @@ export async function GET() {
   }
 }
 
-export async function PUT(req: NextRequest) {
+async function handleUpdateSettings(req: NextRequest) {
   try {
     const session = await authenticateRequest(req);
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized. Please login again.' }, { status: 401 });
     }
 
     await connectToDatabase();
@@ -47,8 +63,21 @@ export async function PUT(req: NextRequest) {
       await setting.save();
     }
 
-    return NextResponse.json({ success: true, setting });
+    return NextResponse.json({ success: true, setting, message: 'Settings updated successfully' });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error('Settings update error:', error);
+    return NextResponse.json({ success: false, error: error.message || 'Failed to update settings' }, { status: 500 });
   }
+}
+
+export async function PUT(req: NextRequest) {
+  return handleUpdateSettings(req);
+}
+
+export async function POST(req: NextRequest) {
+  return handleUpdateSettings(req);
+}
+
+export async function PATCH(req: NextRequest) {
+  return handleUpdateSettings(req);
 }

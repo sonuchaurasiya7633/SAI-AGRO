@@ -10,8 +10,8 @@ const port = process.env.PORT || 3000;
 app.prepare().then(() => {
   const server = express();
 
-  // Parse JSON bodies
-  server.use(express.json());
+  // Note: Do NOT use express.json() globally here as it consumes the request stream
+  // which prevents Next.js App Router API routes from reading req.json() / req.formData()
 
   // Handle all requests with Next.js App Router
   server.all('*', (req, res) => {
