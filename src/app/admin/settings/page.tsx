@@ -125,11 +125,20 @@ export default function AdminSettingsPage() {
     setSettingsError('');
 
     try {
-      const res = await fetch('/api/settings', {
+      let res = await fetch('/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(setting),
       });
+      if (res.status === 405) {
+        res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(setting),
+        });
+      }
       const data = await res.json();
 
       if (res.ok && data.success) {

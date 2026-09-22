@@ -55,13 +55,14 @@ async function handleUpdateSettings(req: NextRequest) {
     await connectToDatabase();
     const body = await req.json();
 
-    let setting = await Setting.findOne();
-    if (!setting) {
-      setting = await Setting.create(body);
-    } else {
-      Object.assign(setting, body);
-      await setting.save();
-    }
+    // Remove immutable fields to prevent MongoDB update errors
+    const { _id, __v, createdAt, updatedAt, ...updateData } = body;
+
+    const setting = await Setting.findOneAndUpdate(
+      {},
+      { $set: updateData },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
 
     return NextResponse.json({ success: true, setting, message: 'Settings updated successfully' });
   } catch (error: any) {
