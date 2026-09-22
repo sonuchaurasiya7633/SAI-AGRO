@@ -154,15 +154,15 @@ export default function Navbar() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-        {/* Main Desktop & Tablet Header Bar (Single sleek bar without any top strip) */}
+        {/* Main Desktop & Tablet Header Bar (100% SOLID Non-Transparent Background Theme) */}
         <nav className={`transition-all duration-300 border-b ${
           isScrolled 
             ? isLight
-              ? 'bg-white/98 shadow-xl py-2.5 border-emerald-200/90'
-              : 'bg-[#08180e]/98 shadow-2xl py-2.5 border-emerald-500/20' 
+              ? 'bg-white shadow-xl py-2.5 border-emerald-200'
+              : 'bg-[#06150b] shadow-2xl py-2.5 border-emerald-800/80' 
             : isLight
-              ? 'bg-white/95 py-3 border-emerald-100 shadow-sm'
-              : 'bg-[#0b1b11]/95 py-3 border-emerald-900/50 shadow-md'
+              ? 'bg-white py-3 border-emerald-100 shadow-md shadow-emerald-950/5'
+              : 'bg-[#06150b] py-3 border-emerald-900 shadow-lg shadow-black/70'
         }`}>
           <div className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
             
