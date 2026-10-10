@@ -5,8 +5,10 @@ import Footer from '@/components/layout/Footer';
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { SettingsProvider } from '@/context/SettingsContext';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://saiagroindustries.com'),
   title: 'SAI AGRO INDUSTRIES | Sustainable Agro & Bio-Crop Solutions',
   description: 'Empowering farmers with premium bio-fertilizers, plant growth regulators, chelated micronutrients, bio-fungicides, and organic soil conditioners for maximum crop yield.',
   keywords: 'Sai Agro Industries, Bio fertilizers, Plant growth promoters, organic farming, micronutrients, Trichoderma, humic acid, agrochemicals, sustainable agriculture',
@@ -43,12 +45,14 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col font-sans transition-colors duration-300 antialiased selection:bg-emerald-500 selection:text-white">
         <ThemeProvider>
           <LanguageProvider>
-            <Navbar />
-            <main className="flex-grow pt-16 sm:pt-20">
-              {children}
-            </main>
-            <Footer />
-            <FloatingWhatsApp />
+            <SettingsProvider>
+              <Navbar />
+              <main className="flex-grow pt-16 sm:pt-20">
+                {children}
+              </main>
+              <Footer />
+              <FloatingWhatsApp />
+            </SettingsProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

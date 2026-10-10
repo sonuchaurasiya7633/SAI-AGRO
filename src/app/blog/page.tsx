@@ -33,7 +33,7 @@ export default function BlogListPage() {
         if (selectedCat !== 'All Articles') {
           url += `&category=${encodeURIComponent(selectedCat)}`;
         }
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: 'no-store' });
         const data = await res.json();
         if (data.success && data.blogs) {
           setBlogs(data.blogs);

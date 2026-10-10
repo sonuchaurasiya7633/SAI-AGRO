@@ -13,6 +13,7 @@ import {
 import QuickQuoteModal from '@/components/ui/QuickQuoteModal';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/context/SettingsContext';
 
 interface CropSchedule {
   stage: { en: string; hi: string };
@@ -174,8 +175,11 @@ export default function CropAdvisor() {
 
   const { theme } = useTheme();
   const { language, t } = useLanguage();
+  const { settings } = useSettings();
   const isLight = theme === 'light';
   const isHindi = language === 'hi';
+
+  const cleanWhatsApp = (settings.whatsappNumber || '919876543210').replace(/\D/g, '');
 
   const currentCrop = cropData[selectedCropKey] || cropData.paddy;
 
@@ -355,7 +359,7 @@ export default function CropAdvisor() {
           
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <a
-              href="https://wa.me/919876543210?text=Hello%20Sai%20Agro,%20I%20need%20crop%20advisory%20for%20my%20farm."
+              href={`https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent('Hello Sai Agro, I need crop advisory for my farm.')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 sm:flex-initial px-5 py-3 rounded-2xl font-black text-xs sm:text-sm shadow-md bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 flex items-center justify-center gap-1.5 transition"

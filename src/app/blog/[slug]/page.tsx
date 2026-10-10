@@ -32,7 +32,7 @@ export default function SingleBlogPage() {
       if (!slug) return;
       setLoading(true);
       try {
-        const res = await fetch(`/api/blogs/${slug}`);
+        const res = await fetch(`/api/blogs/${slug}`, { cache: 'no-store' });
         const data = await res.json();
         if (data.success && data.blog) {
           setBlog(data.blog);

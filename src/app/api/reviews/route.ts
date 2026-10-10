@@ -2,16 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Review from '@/models/Review';
 import { authenticateRequest } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const noCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
 
 export async function GET(req?: NextRequest) {
   try {
     await connectToDatabase();
     const reviews = await Review.find().sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, reviews });
+    return NextResponse.json({ success: true, reviews }, { headers: noCacheHeaders });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: noCacheHeaders });
   }
 }
 
@@ -21,7 +29,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     if (!body.farmerName || !body.district || !body.state || !body.cropGrown || !body.reviewText) {
-      return NextResponse.json({ error: 'Farmer name, location, crop, and review text are required' }, { status: 400 });
+      return NextResponse.json({ error: 'Farmer name, location, crop, and review text are required' }, { status: 400, headers: noCacheHeaders });
     }
 
     await connectToDatabase();
@@ -30,8 +38,14 @@ export async function POST(req: NextRequest) {
       isVerified: !!session || body.isVerified,
     });
 
-    return NextResponse.json({ success: true, review }, { status: 201 });
+    try {
+      revalidatePath('/', 'layout');
+    } catch (e) {
+      console.warn('Revalidation notice:', e);
+    }
+
+    return NextResponse.json({ success: true, review }, { status: 201, headers: noCacheHeaders });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: noCacheHeaders });
   }
 }

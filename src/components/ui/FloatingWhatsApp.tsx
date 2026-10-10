@@ -3,15 +3,18 @@
 import React from 'react';
 import { MessageSquare, PhoneCall } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function FloatingWhatsApp() {
   const pathname = usePathname();
+  const { settings } = useSettings();
   const isAdmin = pathname?.startsWith('/admin');
 
   if (isAdmin) return null;
 
-  const whatsappNumber = '919876543210';
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+  const rawNumber = settings.whatsappNumber || '919876543210';
+  const cleanNumber = rawNumber.replace(/[^0-9]/g, '');
+  const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(
     'Hello Sai Agro Industries! I am interested in your organic bio-fertilizers and crop solutions. Please provide product and dealership details.'
   )}`;
 

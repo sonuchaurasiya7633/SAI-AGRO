@@ -17,9 +17,11 @@ import {
   Building 
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function AdminSettingsPage() {
   const { theme } = useTheme();
+  const { refreshSettings } = useSettings();
   const isLight = theme === 'light';
 
   const [setting, setSetting] = useState<any>({
@@ -68,7 +70,7 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     async function fetchSettings() {
       try {
-        const res = await fetch('/api/settings');
+        const res = await fetch('/api/settings', { cache: 'no-store' });
         const data = await res.json();
         if (data.success && data.setting) {
           setSetting((prev: any) => ({
@@ -143,6 +145,9 @@ export default function AdminSettingsPage() {
 
       if (res.ok && data.success) {
         setSettingsSuccess(true);
+        try {
+          await refreshSettings();
+        } catch {}
         if (data.setting) {
           setSetting((prev: any) => ({
             ...prev,

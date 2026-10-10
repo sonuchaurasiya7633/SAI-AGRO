@@ -19,11 +19,13 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function Footer() {
   const pathname = usePathname();
   const { theme } = useTheme();
   const { language, t } = useLanguage();
+  const { settings } = useSettings();
   
   const isLight = theme === 'light';
   const isHindi = language === 'hi';
@@ -165,21 +167,21 @@ export default function Footer() {
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-lime-400 flex-shrink-0 mt-0.5" />
                 <span className="text-slate-300">
-                  {isHindi 
+                  {settings.registeredAddress || (isHindi 
                     ? 'बेला औद्योगिक क्षेत्र, फेज-II, एग्रो कॉम्प्लेक्स, भारत' 
-                    : 'Bela Industrial Area, Phase II, Agro Complex, India'}
+                    : 'Bela Industrial Area, Phase II, Agro Complex, India')}
                 </span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-lime-400 flex-shrink-0" />
-                <a href="tel:+919876543210" className="text-slate-300 hover:text-white transition font-medium">
-                  +91 98765 43210
+                <a href={`tel:${settings.phonePrimary || '+919876543210'}`} className="text-slate-300 hover:text-white transition font-medium">
+                  {settings.phonePrimary || '+91 98765 43210'}
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-lime-400 flex-shrink-0" />
-                <a href="mailto:info@saiagroindustries.com" className="text-slate-300 hover:text-white transition">
-                  info@saiagroindustries.com
+                <a href={`mailto:${settings.emailPrimary || 'info@saiagroindustries.com'}`} className="text-slate-300 hover:text-white transition">
+                  {settings.emailPrimary || 'info@saiagroindustries.com'}
                 </a>
               </div>
             </div>

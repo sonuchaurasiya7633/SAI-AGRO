@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Sprout, 
@@ -14,80 +14,117 @@ import {
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 
+const iconMap: Record<string, any> = {
+  Sprout,
+  TrendingUp,
+  Zap,
+  ShieldCheck,
+  Layers,
+  Sparkles,
+};
+
+const defaultCategories = [
+  {
+    title: 'Bio-Fertilizers & Inoculants',
+    desc: 'High-potency PSB & Azotobacter microbial cultures that solubilize fixed soil phosphorus and fix atmospheric nitrogen naturally.',
+    icon: Sprout,
+    href: '/products?category=Bio-Fertilizers',
+    color: 'from-emerald-500 to-green-600',
+    count: '6 Formulations',
+    tag: 'Bio-Active'
+  },
+  {
+    title: 'Plant Growth Regulators (PGR)',
+    desc: 'Enriched with cold-water Ascophyllum Nodosum seaweed extract and free L-amino acids to prevent flower dropping and maximize fruit set.',
+    icon: TrendingUp,
+    href: '/products?category=Plant+Growth+Promoters',
+    color: 'from-lime-500 to-emerald-600',
+    count: '5 Formulations',
+    tag: 'High Growth'
+  },
+  {
+    title: 'Chelated Micronutrients',
+    desc: '100% water-soluble EDTA Zinc, Calcium, Boron, and Multi-Micronutrient formulas for instant stomatal absorption and disease immunity.',
+    icon: Zap,
+    href: '/products?category=Micronutrients',
+    color: 'from-amber-500 to-yellow-600',
+    count: '4 Formulations',
+    tag: '100% EDTA'
+  },
+  {
+    title: 'Bio-Fungicides & Eco-Defense',
+    desc: 'Biological antagonists including Trichoderma viride and Pseudomonas that combat Fusarium wilt, root rot, and foliar blights safely.',
+    icon: ShieldCheck,
+    href: '/products?category=Bio-Fungicides',
+    color: 'from-teal-500 to-emerald-700',
+    count: '4 Formulations',
+    tag: 'Eco Shield'
+  },
+  {
+    title: 'Soil Conditioners & Humic Flakes',
+    desc: '98% Potassium Humate and active Fulvic Acid that condition hard saline soils, enhance CEC, and accelerate fibrous root growth.',
+    icon: Layers,
+    href: '/products?category=Soil+Conditioners',
+    color: 'from-amber-600 to-orange-700',
+    count: '3 Formulations',
+    tag: 'Soil Vitalizer'
+  },
+  {
+    title: 'VAM Mycorrhizal Bio-Granules',
+    desc: 'Endo-mycorrhiza encapsulated granules extending plant root foraging area up to 100x into deeper moisture layers.',
+    icon: Sparkles,
+    href: '/products?category=Specialty+Bio-Granules',
+    color: 'from-green-500 to-lime-600',
+    count: '3 Formulations',
+    tag: 'Root Booster'
+  },
+];
+
+const colorsList = [
+  'from-emerald-500 to-green-600',
+  'from-lime-500 to-emerald-600',
+  'from-amber-500 to-yellow-600',
+  'from-teal-500 to-emerald-700',
+  'from-amber-600 to-orange-700',
+  'from-green-500 to-lime-600',
+];
+
+const tagsList = ['Bio-Active', 'High Growth', '100% EDTA', 'Eco Shield', 'Soil Vitalizer', 'Root Booster'];
+
 export default function ProductCategoriesSection() {
   const { theme } = useTheme();
   const { language, t } = useLanguage();
   const isLight = theme === 'light';
   const isHindi = language === 'hi';
 
-  const categories = [
-    {
-      title: isHindi ? 'जैव उर्वरक एवं जीवाणु टीका' : 'Bio-Fertilizers & Inoculants',
-      desc: isHindi 
-        ? 'उच्च शक्ति वाले पीएसबी और एजोटोबैक्टर जो मिट्टी में जमे फास्फोरस को घोलते हैं और प्राकृतिक नाइट्रोजन प्रदान करते हैं।' 
-        : 'High-potency PSB & Azotobacter microbial cultures that solubilize fixed soil phosphorus and fix atmospheric nitrogen naturally.',
-      icon: Sprout,
-      href: '/products?category=Bio-Fertilizers',
-      color: 'from-emerald-500 to-green-600',
-      count: isHindi ? '6 उत्पाद' : '6 Formulations',
-      tag: 'Bio-Active'
-    },
-    {
-      title: isHindi ? 'पौध वृद्धि नियामक (PGR)' : 'Plant Growth Regulators (PGR)',
-      desc: isHindi 
-        ? 'कोल्ड-वाटर समुद्री शैवाल अर्क और मुक्त एल-अमीनो एसिड से भरपूर जो फूलों को झड़ने से रोकते हैं और फलों का आकार बढ़ाते हैं।' 
-        : 'Enriched with cold-water Ascophyllum Nodosum seaweed extract and free L-amino acids to prevent flower dropping and maximize fruit set.',
-      icon: TrendingUp,
-      href: '/products?category=Plant+Growth+Promoters',
-      color: 'from-lime-500 to-emerald-600',
-      count: isHindi ? '5 उत्पाद' : '5 Formulations',
-      tag: 'High Growth'
-    },
-    {
-      title: isHindi ? 'चिलेटेड सूक्ष्म पोषक तत्व' : 'Chelated Micronutrients',
-      desc: isHindi 
-        ? '100% जल-घुलनशील EDTA जिंक, बोरॉन, कैल्शियम और मल्टी-माइक्रोन्यूट्रिएंट जो तुरंत अवशोषित होकर फसलों में चमक लाते हैं।' 
-        : '100% water-soluble EDTA Zinc, Calcium, Boron, and Multi-Micronutrient formulas for instant stomatal absorption and disease immunity.',
-      icon: Zap,
-      href: '/products?category=Micronutrients',
-      color: 'from-amber-500 to-yellow-600',
-      count: isHindi ? '4 उत्पाद' : '4 Formulations',
-      tag: '100% EDTA'
-    },
-    {
-      title: isHindi ? 'जैव कवकनाशी एवं पौध रक्षा' : 'Bio-Fungicides & Eco-Defense',
-      desc: isHindi 
-        ? 'ट्राइकोडर्मा विरिडी और स्यूडोमोनास जो उकठा (विल्ट), जड़ सड़न और फफूंद जनित रोगों को जैविक रूप से नियंत्रित करते हैं।' 
-        : 'Biological antagonists including Trichoderma viride and Pseudomonas that combat Fusarium wilt, root rot, and foliar blights safely.',
-      icon: ShieldCheck,
-      href: '/products?category=Bio-Fungicides',
-      color: 'from-teal-500 to-emerald-700',
-      count: isHindi ? '4 उत्पाद' : '4 Formulations',
-      tag: 'Eco Shield'
-    },
-    {
-      title: isHindi ? 'जैविक मृदा सुधारक एवं ह्यूमिक' : 'Soil Conditioners & Humic Flakes',
-      desc: isHindi 
-        ? '98% पोटैशियम ह्यूमेट चमकदार दाने और फुल्विक एसिड जो कठोर खारी मिट्टी को भुरभुरा बनाकर जड़ों का तेजी से जाल फैलाते हैं।' 
-        : '98% Potassium Humate and active Fulvic Acid that condition hard saline soils, enhance CEC, and accelerate fibrous root growth.',
-      icon: Layers,
-      href: '/products?category=Soil+Conditioners',
-      color: 'from-amber-600 to-orange-700',
-      count: isHindi ? '3 उत्पाद' : '3 Formulations',
-      tag: 'Soil Vitalizer'
-    },
-    {
-      title: isHindi ? 'माइकोराइजा बायो-ग्रेन्युल्स' : 'VAM Mycorrhizal Bio-Granules',
-      desc: isHindi 
-        ? 'एंडो-माइकोराइजा दानेदार टीका जो पौधों की जड़ों के क्षेत्र को 100 गुना बढ़ाकर नमी और फास्फोरस को गहराई से खींचते हैं।' 
-        : 'Endo-mycorrhiza encapsulated granules extending plant root foraging area up to 100x into deeper moisture layers.',
-      icon: Sparkles,
-      href: '/products?category=Specialty+Bio-Granules',
-      color: 'from-green-500 to-lime-600',
-      count: isHindi ? '3 उत्पाद' : '3 Formulations',
-      tag: 'Root Booster'
-    },
-  ];
+  const [categories, setCategories] = useState<any[]>(defaultCategories);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.success && data.categories && data.categories.length > 0) {
+          const mapped = data.categories.map((cat: any, idx: number) => {
+            const IconComponent = iconMap[cat.iconName] || defaultCategories[idx % defaultCategories.length].icon;
+            return {
+              title: cat.name,
+              desc: cat.description || defaultCategories[idx % defaultCategories.length].desc,
+              icon: IconComponent,
+              href: `/products?category=${encodeURIComponent(cat.name)}`,
+              color: colorsList[idx % colorsList.length],
+              count: `${cat.itemCount || 0} ${isHindi ? 'उत्पाद' : 'Formulations'}`,
+              tag: tagsList[idx % tagsList.length],
+            };
+          });
+          setCategories(mapped);
+        }
+      } catch (err) {
+        console.error('Failed to load categories:', err);
+      }
+    }
+    loadCategories();
+  }, [isHindi]);
 
   return (
     <section className={`py-16 sm:py-20 transition-colors duration-300 relative ${

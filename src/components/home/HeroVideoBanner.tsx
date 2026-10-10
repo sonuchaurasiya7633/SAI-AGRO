@@ -18,17 +18,20 @@ import VideoPlayerModal from '@/components/ui/VideoPlayerModal';
 import QuickQuoteModal from '@/components/ui/QuickQuoteModal';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function HeroVideoBanner() {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const { theme } = useTheme();
   const { language, t } = useLanguage();
+  const { settings } = useSettings();
   
   const isLight = theme === 'light';
   const isHindi = language === 'hi';
 
-  const heroVideo1 = 'https://res.cloudinary.com/dqpbo1uho/video/upload/v1790006013/cfxq9ax4finlluesengh.mp4';
+  const defaultVideo = 'https://res.cloudinary.com/dqpbo1uho/video/upload/v1790006013/cfxq9ax4finlluesengh.mp4';
+  const heroVideo1 = settings.heroVideoUrl || defaultVideo;
 
   return (
     <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-6 pb-16 sm:pb-20">
@@ -124,11 +127,15 @@ export default function HeroVideoBanner() {
         {/* Responsive Quick Stats Bar */}
         <div className="mt-12 sm:mt-14 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-5xl mx-auto">
           <div className="p-4 rounded-2xl border backdrop-blur-md transition text-center bg-emerald-950/70 border-emerald-800/60 shadow-xl">
-            <div className="text-2xl sm:text-3xl font-black text-lime-400">50,000+</div>
+            <div className="text-2xl sm:text-3xl font-black text-lime-400">
+              {settings.stats?.farmersHelped || '50,000+'}
+            </div>
             <div className="text-xs text-slate-200 mt-1 font-semibold">{t('statFarmers')}</div>
           </div>
           <div className="p-4 rounded-2xl border backdrop-blur-md transition text-center bg-emerald-950/70 border-emerald-800/60 shadow-xl">
-            <div className="text-2xl sm:text-3xl font-black text-lime-400">18+ States</div>
+            <div className="text-2xl sm:text-3xl font-black text-lime-400">
+              {settings.stats?.statesPresence || '18+ States'}
+            </div>
             <div className="text-xs text-slate-200 mt-1 font-semibold">{t('statStates')}</div>
           </div>
           <div className="p-4 rounded-2xl border backdrop-blur-md transition text-center bg-emerald-950/70 border-emerald-800/60 shadow-xl">

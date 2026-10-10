@@ -9,6 +9,9 @@ import WhyChooseUsSection from '@/components/home/WhyChooseUsSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
 import AgronomyBlogsSection from '@/components/home/AgronomyBlogsSection';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">

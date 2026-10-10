@@ -3,8 +3,16 @@ import connectToDatabase from '@/lib/mongodb';
 import Category from '@/models/Category';
 import Product from '@/models/Product';
 import { authenticateRequest } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const noCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
 
 function slugify(text: string) {
   return text
@@ -32,9 +40,9 @@ export async function GET(req?: NextRequest) {
       })
     );
 
-    return NextResponse.json({ success: true, categories: categoriesWithCount });
+    return NextResponse.json({ success: true, categories: categoriesWithCount }, { headers: noCacheHeaders });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: noCacheHeaders });
   }
 }
 
@@ -42,12 +50,12 @@ export async function POST(req: NextRequest) {
   try {
     const session = await authenticateRequest(req);
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: noCacheHeaders });
     }
 
     const body = await req.json();
     if (!body.name) {
-      return NextResponse.json({ error: 'Category name is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Category name is required' }, { status: 400, headers: noCacheHeaders });
     }
 
     await connectToDatabase();
@@ -65,8 +73,15 @@ export async function POST(req: NextRequest) {
       slug: uniqueSlug,
     });
 
-    return NextResponse.json({ success: true, category }, { status: 201 });
+    try {
+      revalidatePath('/', 'layout');
+      revalidatePath('/products');
+    } catch (e) {
+      console.warn('Revalidation notice:', e);
+    }
+
+    return NextResponse.json({ success: true, category }, { status: 201, headers: noCacheHeaders });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: noCacheHeaders });
   }
 }

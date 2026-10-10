@@ -5,20 +5,25 @@ import { Play, Video, ShieldCheck } from 'lucide-react';
 import VideoPlayerModal from '@/components/ui/VideoPlayerModal';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function VideoShowcaseSection() {
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null);
   const { theme } = useTheme();
   const { language, t } = useLanguage();
+  const { settings } = useSettings();
   const isLight = theme === 'light';
   const isHindi = language === 'hi';
+
+  const defaultVideo1 = 'https://res.cloudinary.com/dqpbo1uho/video/upload/v1790006013/cfxq9ax4finlluesengh.mp4';
+  const defaultVideo2 = 'https://res.cloudinary.com/dqpbo1uho/video/upload/v1790006093/okb0skw8akivryv3drin.mp4';
 
   const videoList = [
     {
       title: isHindi 
-        ? 'साईं एग्रो अत्याधुनिक बायो-फर्टिलाइजर निर्माण एवं स्वचालित प्लांट टूर' 
-        : 'Sai Agro High-Tech Bio-Formulation & Automated Plant Tour',
-      videoUrl: 'https://res.cloudinary.com/dqpbo1uho/video/upload/v1790006013/cfxq9ax4finlluesengh.mp4',
+        ? `${settings.companyName || 'साईं एग्रो'} अत्याधुनिक बायो-फर्टिलाइजर निर्माण एवं स्वचालित प्लांट टूर` 
+        : `${settings.companyName || 'Sai Agro'} High-Tech Bio-Formulation & Automated Plant Tour`,
+      videoUrl: settings.heroVideoUrl || defaultVideo1,
       tag: isHindi ? 'फैक्ट्री इन्फ्रास्ट्रक्चर' : 'Factory Tour',
       desc: isHindi 
         ? 'हमारे अत्याधुनिक विनिर्माण संयंत्र, कंप्यूटर-नियंत्रित माइक्रोबियल रिएक्टरों, क्लीनरूम और स्वचालित पैकेजिंग लाइनों का दृश्य।' 
@@ -28,7 +33,7 @@ export default function VideoShowcaseSection() {
       title: isHindi 
         ? 'किसानों के खेतों पर वास्तविक परिणाम एवं बंपर पैदावार प्रदर्शन' 
         : 'High-Yield Field Demonstration & Farmer Trial Results',
-      videoUrl: 'https://res.cloudinary.com/dqpbo1uho/video/upload/v1790006093/okb0skw8akivryv3drin.mp4',
+      videoUrl: settings.heroVideoUrl2 || defaultVideo2,
       tag: isHindi ? 'खेत प्रदर्शन' : 'Field Demonstration',
       desc: isHindi 
         ? 'किसानों के खेतों पर किए गए सफल परीक्षण, जिसमें साईं एग्रो बायो-फर्टिलाइजर के प्रयोग से 30%+ अधिक जड़ फैलाव और चमकदार दाने देखे गए।' 

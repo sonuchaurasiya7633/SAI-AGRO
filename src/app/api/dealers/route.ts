@@ -4,6 +4,13 @@ import Dealer from '@/models/Dealer';
 import { authenticateRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const noCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
 
 // GET /api/dealers (Admin Protected)
 export async function GET(req: NextRequest) {
@@ -23,9 +30,9 @@ export async function GET(req: NextRequest) {
     if (state && state !== 'all') query.state = state;
 
     const dealers = await Dealer.find(query).sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, dealers });
+    return NextResponse.json({ success: true, dealers }, { headers: noCacheHeaders });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: noCacheHeaders });
   }
 }
 
@@ -44,8 +51,8 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'Distributorship application submitted successfully. Our regional manager will review and contact you.',
       dealer,
-    }, { status: 201 });
+    }, { status: 201, headers: noCacheHeaders });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: noCacheHeaders });
   }
 }

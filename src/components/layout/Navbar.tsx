@@ -34,19 +34,37 @@ import {
 import QuickQuoteModal from '@/components/ui/QuickQuoteModal';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function Navbar() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
+  const { settings } = useSettings();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [dynamicCategories, setDynamicCategories] = useState<any[]>([]);
 
   // Don't show public navbar inside admin panel
   const isAdmin = pathname?.startsWith('/admin');
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.success && data.categories && data.categories.length > 0) {
+          setDynamicCategories(data.categories);
+        }
+      } catch (err) {
+        // Fallback to static categories
+      }
+    }
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -613,13 +631,15 @@ export default function Navbar() {
             }`}>
               <div className="grid grid-cols-2 gap-2">
                 <a
-                  href="tel:+919876543210"
+                  href={`tel:${settings.phonePrimary || '+919876543210'}`}
                   className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs transition shadow-md"
                 >
                   <Phone className="w-3.5 h-3.5" /> {isHindi ? 'कॉल करें' : 'Helpline'}
                 </a>
                 <a
-                  href="https://wa.me/919876543210?text=Hello%20Sai%20Agro,%20I%20want%20information%20about%20your%20products."
+                  href={`https://wa.me/${(settings.whatsappNumber || '919876543210').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                    `Hello ${settings.companyName || 'Sai Agro'}, I want information about your products.`
+                  )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-black text-xs transition shadow-md"

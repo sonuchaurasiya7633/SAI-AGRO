@@ -110,7 +110,7 @@ export default function FeaturedProductsSection() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('/api/products?featured=true&limit=6');
+        const res = await fetch('/api/products?featured=true&limit=6', { cache: 'no-store' });
         const data = await res.json();
         if (data.success && data.products && data.products.length > 0) {
           setProducts(data.products);

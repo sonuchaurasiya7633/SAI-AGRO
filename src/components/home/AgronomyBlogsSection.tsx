@@ -60,7 +60,7 @@ export default function AgronomyBlogsSection() {
   useEffect(() => {
     async function fetchBlogs() {
       try {
-        const res = await fetch('/api/blogs');
+        const res = await fetch('/api/blogs', { cache: 'no-store' });
         const data = await res.json();
         if (data.success && data.blogs && data.blogs.length > 0) {
           setBlogs(data.blogs.slice(0, 3));

@@ -2,8 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Setting from '@/models/Setting';
 import { authenticateRequest } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const noCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
 
 export async function GET(req?: NextRequest) {
   try {
@@ -39,9 +47,9 @@ export async function GET(req?: NextRequest) {
       });
     }
 
-    return NextResponse.json({ success: true, setting });
+    return NextResponse.json({ success: true, setting }, { headers: noCacheHeaders });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: noCacheHeaders });
   }
 }
 
@@ -49,7 +57,7 @@ async function handleUpdateSettings(req: NextRequest) {
   try {
     const session = await authenticateRequest(req);
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized. Please login again.' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized. Please login again.' }, { status: 401, headers: noCacheHeaders });
     }
 
     await connectToDatabase();
@@ -64,10 +72,18 @@ async function handleUpdateSettings(req: NextRequest) {
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
 
-    return NextResponse.json({ success: true, setting, message: 'Settings updated successfully' });
+    try {
+      revalidatePath('/', 'layout');
+      revalidatePath('/contact');
+      revalidatePath('/about');
+    } catch (e) {
+      console.warn('Revalidation notice:', e);
+    }
+
+    return NextResponse.json({ success: true, setting, message: 'Settings updated successfully' }, { headers: noCacheHeaders });
   } catch (error: any) {
     console.error('Settings update error:', error);
-    return NextResponse.json({ success: false, error: error.message || 'Failed to update settings' }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message || 'Failed to update settings' }, { status: 500, headers: noCacheHeaders });
   }
 }
 

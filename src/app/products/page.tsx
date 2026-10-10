@@ -117,7 +117,7 @@ const fallbackCatalog: ProductItem[] = [
   }
 ];
 
-const categoriesList = [
+const defaultCategoriesList = [
   'All Categories',
   'Bio-Fertilizers & Inoculants',
   'Plant Growth Regulators & Promoters',
@@ -146,6 +146,7 @@ function ProductCatalogContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') || 'All Categories';
 
+  const [categoriesList, setCategoriesList] = useState<string[]>(defaultCategoriesList);
   const [products, setProducts] = useState<ProductItem[]>(fallbackCatalog);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -158,6 +159,22 @@ function ProductCatalogContent() {
   const { language, t } = useLanguage();
   const isLight = theme === 'light';
   const isHindi = language === 'hi';
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.success && data.categories && data.categories.length > 0) {
+          const names = data.categories.map((c: any) => c.name);
+          setCategoriesList(['All Categories', ...names]);
+        }
+      } catch (err) {
+        // keep fallback
+      }
+    }
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -177,9 +194,9 @@ function ProductCatalogContent() {
         url += `&search=${encodeURIComponent(searchQuery.trim())}`;
       }
 
-      const res = await fetch(url);
+      const res = await fetch(url, { cache: 'no-store' });
       const data = await res.json();
-      if (data.success && data.products && data.products.length > 0) {
+      if (data.success && data.products) {
         setProducts(data.products);
       }
     } catch (err) {

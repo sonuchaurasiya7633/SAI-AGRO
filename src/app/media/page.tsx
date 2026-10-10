@@ -24,7 +24,7 @@ export default function MediaPage() {
   useEffect(() => {
     async function fetchMedia() {
       try {
-        const res = await fetch('/api/media');
+        const res = await fetch('/api/media', { cache: 'no-store' });
         const data = await res.json();
         if (data.success && data.media) {
           setMediaList(data.media);

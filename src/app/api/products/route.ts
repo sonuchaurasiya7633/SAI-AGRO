@@ -2,8 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Product from '@/models/Product';
 import { authenticateRequest } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const noCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
 
 // Helper to convert title to slug
 function slugify(text: string) {
@@ -32,11 +40,11 @@ export async function GET(req: NextRequest) {
 
     const query: any = {};
 
-    if (category && category !== 'all' && category !== 'All') {
+    if (category && category !== 'all' && category !== 'All' && category !== 'All Categories') {
       query.category = { $regex: new RegExp(category, 'i') };
     }
 
-    if (crop) {
+    if (crop && crop !== 'all' && crop !== 'All' && crop !== 'All Crops') {
       query.targetCrops = { $regex: new RegExp(crop, 'i') };
     }
 
@@ -60,19 +68,22 @@ export async function GET(req: NextRequest) {
       .skip(skip)
       .limit(limit);
 
-    return NextResponse.json({
-      success: true,
-      products,
-      pagination: {
-        total,
-        page,
-        limit,
-        pages: Math.ceil(total / limit),
+    return NextResponse.json(
+      {
+        success: true,
+        products,
+        pagination: {
+          total,
+          page,
+          limit,
+          pages: Math.ceil(total / limit),
+        },
       },
-    });
+      { headers: noCacheHeaders }
+    );
   } catch (error: any) {
     console.error('Products GET error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: noCacheHeaders });
   }
 }
 
@@ -81,12 +92,12 @@ export async function POST(req: NextRequest) {
   try {
     const session = await authenticateRequest(req);
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: noCacheHeaders });
     }
 
     const body = await req.json();
     if (!body.name || !body.category || !body.description) {
-      return NextResponse.json({ error: 'Name, Category, and Description are required' }, { status: 400 });
+      return NextResponse.json({ error: 'Name, Category, and Description are required' }, { status: 400, headers: noCacheHeaders });
     }
 
     await connectToDatabase();
@@ -104,9 +115,16 @@ export async function POST(req: NextRequest) {
       slug: uniqueSlug,
     });
 
-    return NextResponse.json({ success: true, product: newProduct }, { status: 201 });
+    try {
+      revalidatePath('/', 'layout');
+      revalidatePath('/products');
+    } catch (e) {
+      console.warn('Revalidation notice:', e);
+    }
+
+    return NextResponse.json({ success: true, product: newProduct }, { status: 201, headers: noCacheHeaders });
   } catch (error: any) {
     console.error('Product POST error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: noCacheHeaders });
   }
 }

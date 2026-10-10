@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -34,6 +35,7 @@ export default function ContactPage() {
 
   const { theme } = useTheme();
   const { language, t } = useLanguage();
+  const { settings } = useSettings();
   const isLight = theme === 'light';
   const isHindi = language === 'hi';
 
@@ -70,8 +72,10 @@ export default function ContactPage() {
     }
   };
 
-  const whatsappUrl = `https://wa.me/919876543210?text=${encodeURIComponent(
-    'Hello Sai Agro Industries! I would like to connect with your technical and sales team.'
+  const rawWhatsApp = settings.whatsappNumber || '919876543210';
+  const cleanWhatsApp = rawWhatsApp.replace(/[^0-9]/g, '');
+  const whatsappUrl = `https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(
+    `Hello ${settings.companyName || 'Sai Agro Industries'}! I would like to connect with your technical and sales team.`
   )}`;
 
   return (
@@ -91,7 +95,7 @@ export default function ContactPage() {
           <h1 className={`text-3xl sm:text-5xl font-black tracking-tight ${
             isLight ? 'text-slate-900' : 'text-white'
           }`}>
-            {isHindi ? 'साईं एग्रो इंडस्ट्रीज से संपर्क करें' : 'Connect with Sai Agro Industries'}
+            {isHindi ? `${settings.companyName || 'साईं एग्रो इंडस्ट्रीज'} से संपर्क करें` : `Connect with ${settings.companyName || 'Sai Agro Industries'}`}
           </h1>
           <p className={`text-sm sm:text-base leading-relaxed ${
             isLight ? 'text-slate-600' : 'text-slate-300'
@@ -115,12 +119,14 @@ export default function ContactPage() {
             </h4>
             <p className="text-xs text-slate-400">Mon-Sat from 9:00 AM to 7:00 PM</p>
             <div className="space-y-1 pt-1">
-              <a href="tel:+919876543210" className="block text-sm font-black text-emerald-600 dark:text-lime-400 hover:underline">
-                +91 98765 43210
+              <a href={`tel:${settings.phonePrimary || '+919876543210'}`} className="block text-sm font-black text-emerald-600 dark:text-lime-400 hover:underline">
+                {settings.phonePrimary || '+91 98765 43210'}
               </a>
-              <a href="tel:+919123456789" className="block text-xs text-slate-400 hover:underline">
-                +91 91234 56789
-              </a>
+              {settings.phoneSecondary && (
+                <a href={`tel:${settings.phoneSecondary}`} className="block text-xs text-slate-400 hover:underline">
+                  {settings.phoneSecondary}
+                </a>
+              )}
             </div>
           </div>
 
@@ -135,12 +141,14 @@ export default function ContactPage() {
             </h4>
             <p className="text-xs text-slate-400">Fast 24-hour response turnaround</p>
             <div className="space-y-1 pt-1">
-              <a href="mailto:info@saiagroindustries.com" className="block text-sm font-black text-emerald-600 dark:text-lime-400 hover:underline">
-                info@saiagroindustries.com
+              <a href={`mailto:${settings.emailPrimary || 'info@saiagroindustries.com'}`} className="block text-sm font-black text-emerald-600 dark:text-lime-400 hover:underline">
+                {settings.emailPrimary || 'info@saiagroindustries.com'}
               </a>
-              <a href="mailto:contact@saiagroindustries.com" className="block text-xs text-slate-400 hover:underline">
-                contact@saiagroindustries.com
-              </a>
+              {settings.emailSupport && (
+                <a href={`mailto:${settings.emailSupport}`} className="block text-xs text-slate-400 hover:underline">
+                  {settings.emailSupport}
+                </a>
+              )}
             </div>
           </div>
 
@@ -153,10 +161,15 @@ export default function ContactPage() {
             <h4 className={`text-lg font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>
               {isHindi ? 'कारखाना एवं पंजीकृत कार्यालय' : 'Plant & Registered Office'}
             </h4>
-            <p className="text-xs text-slate-400">Manufacturing & R&D Laboratory</p>
+            <p className="text-xs text-slate-400">{settings.factoryAddress ? (isHindi ? 'कारखाना पता' : 'Factory Address') : 'Manufacturing & R&D Laboratory'}</p>
             <p className="text-xs text-emerald-700 dark:text-lime-300 font-bold pt-1">
-              Bela Industrial Area, Phase II, Agro Complex, India
+              {settings.registeredAddress || (settings.factoryAddress ? '' : 'Bela Industrial Area, Phase II, Agro Complex, India')}
             </p>
+            {settings.factoryAddress && (
+              <p className="text-[11px] text-slate-400 font-medium">
+                {settings.factoryAddress}
+              </p>
+            )}
           </div>
         </div>
 
